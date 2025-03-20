@@ -2,6 +2,9 @@
 
 A flexible proxy server that enables [Cursor IDE](https://cursor.sh/) to work with various AI providers (Anthropic Claude, Google Gemini, Groq, etc.) while maintaining OpenAI-compatible API formatting.
 
+## NOTE
+**NOTE THIS IS A TEMPLATE, THE WORKING IMPLEMENTATION IS THE R1SONQWEN EXAMPLE, BETWEEN SIMPLE GROQ AND GROQ APIS YOU WILL SEE HOW ITS SUPPOSED TO WORK, PLEASE ENSURE YOU SET UP PROPER STREAMING FROM THE APPLICATION TO CURSOR FOR IT TO WORK!**
+
 ## Features
 
 - **Multi-Provider Support**: Works with Anthropic Claude, Google Gemini, Groq, local Ollama, and custom providers
