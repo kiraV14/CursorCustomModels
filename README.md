@@ -101,19 +101,31 @@ The server will start on port 5000 by default (configurable through the `PORT` e
 
 ### Configuring Cursor
 
-1. Open Cursor IDE
-2. Go to Settings
-3. Under "AI" section, set:
-   - **Base URL**: `http://localhost:5000` (or your ngrok URL if exposed)
-   - **API Key**: Any value (the proxy doesn't check this)
-   - **Model**: Select a model like "gpt-4o" (it will be mapped to your provider's models)
+**IMPORTANT**: Cursor requires verification with a valid OpenAI API key first before you can use custom endpoints.
+
+Here's how to set up Cursor with your proxy:
+
+1. First, enter a **real OpenAI API key** in Cursor's settings (Settings > AI > API Key)
+2. Click "Verify" and wait for Cursor to confirm the key works
+3. After verification succeeds, Cursor will unlock the "Custom API Mode" option
+4. Now you can change the "Base URL" to your proxy URL:
+   - Local usage: `http://localhost:8000`
+   - Remote usage: Your NGROK URL (e.g., `https://your-unique-id.ngrok.io`)
+5. Click "Verify" again to test the connection to your proxy
+6. Select your preferred model from the dropdown
+7. Start using Cursor with your custom model!
+
+The proxy automatically runs NGROK to create a secure tunnel if enabled in your configuration. This allows you to use your proxy from anywhere or share it with team members.
 
 ```mermaid
 graph TD
     A[Open Cursor Settings] --> B[Navigate to AI Section]
-    B --> C[Set Base URL: http://localhost:5000]
-    B --> D[Set API Key: any value]
-    B --> E[Select Model: gpt-4o]
+    B --> C1[Enter real OpenAI API Key]
+    C1 --> C2[Click Verify and wait for success]
+    C2 --> C3[Custom API Mode becomes available]
+    C3 --> C[Set Base URL: http://localhost:8000]
+    C3 --> D[Set API Key: any value]
+    C3 --> E[Select Model: gpt-4o]
     C --> F[Save Settings]
     D --> F
     E --> F
