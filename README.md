@@ -1,148 +1,202 @@
-# Cursor Lens ✨
+# Multi-Provider AI Proxy for Cursor
 
-Cursor Lens is an open-source tool designed to provide insights into AI-assisted coding sessions using Cursor AI. It acts as a proxy between Cursor and various AI providers, logging interactions and providing detailed analytics to help developers optimize their use of AI in their coding workflow.
-
-We are live on ProductHunt today, please upvote us if you find this useful! 🙏
-
-<a href="https://www.producthunt.com/posts/cursor-lens?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-cursor&#0045;lens" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=480850&theme=neutral" alt="Cursor&#0032;Lens - Open&#0032;Source&#0032;Dashboard&#0032;and&#0032;Analytics&#0032;for&#0032;Cursor&#0032;IDE | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-
-![Cursor Lens Dashboard](public/cl-dashboard.png)
+A flexible proxy server that enables [Cursor IDE](https://cursor.sh/) to work with various AI providers (Anthropic Claude, Google Gemini, Groq, etc.) while maintaining OpenAI-compatible API formatting.
 
 ## Features
 
-- **AI Provider Integration**: Supports multiple AI providers including OpenAI, Anthropic, and more.
-- **Request Logging**: Captures and logs all requests between Cursor and AI providers.
-- **Analytics Dashboard**: Provides visual analytics on AI usage, including token consumption and request patterns.
-- **Configurable AI Models**: Allows users to set up and switch between different AI configurations.
-- **Real-time Monitoring**: Offers a live view of ongoing AI interactions.
-- **Token Usage Tracking**: Monitors and reports on token usage across different models.
-- **Cost Estimation**: Provides estimated costs based on token usage and model pricing.
+- **Multi-Provider Support**: Works with Anthropic Claude, Google Gemini, Groq, local Ollama, and custom providers
+- **OpenAI API Compatibility**: Makes any supported AI provider work with Cursor IDE
+- **Model Mapping**: Maps OpenAI model names (like gpt-4o) to provider-specific models
+- **System Prompt Control**: Customizable system prompts for better control of AI behavior
+- **Streaming Support**: Efficient streaming responses for real-time interaction
+- **Format Conversion**: Handles format conversion between different API structures
+- **Ngrok Integration**: Optional ngrok integration for exposing your local proxy
 
-## Technology Stack
+## How It Works
 
-- **Frontend/Backend**: Next.js with React
-- **Database**: PostgreSQL with Prisma ORM
-- **AI Library**: Vercel AI SDK
-- **Styling**: Tailwind CSS with shadcn/ui components
+This proxy acts as a bridge between Cursor IDE (or any OpenAI-compatible client) and various AI providers:
 
-## Getting Started
+```mermaid
+graph LR
+    A[Cursor IDE] -->|OpenAI-formatted requests| B[Multi-Provider AI Proxy]
+    B -->|Provider-specific format| C1[Anthropic Claude API]
+    B -->|Provider-specific format| C2[Google Gemini API]
+    B -->|Provider-specific format| C3[Groq API]
+    B -->|Provider-specific format| C4[Grok API]
+    B -->|Provider-specific format| C5[Local Ollama]
+    B -->|Provider-specific format| C6[Custom Provider]
+    C1 -->|Provider-specific response| D[Format Converter]
+    C2 -->|Provider-specific response| D
+    C3 -->|Provider-specific response| D
+    C4 -->|Provider-specific response| D
+    C5 -->|Provider-specific response| D
+    C6 -->|Provider-specific response| D
+    D -->|OpenAI-formatted response| A
+```
 
-For detailed installation instructions, please refer to our [Installation Guide](https://www.cursorlens.com/docs/getting-started/installation).
+### Request/Response Flow
+
+```mermaid
+sequenceDiagram
+    participant Cursor as Cursor IDE
+    participant Proxy as Multi-Provider AI Proxy
+    participant Provider as AI Provider (Claude/Gemini/Groq/etc.)
+    
+    Cursor->>Proxy: OpenAI-formatted request
+    Note over Proxy: Transform request to provider format
+    Proxy->>Provider: Provider-specific request
+    Provider->>Proxy: Provider-specific response
+    Note over Proxy: Transform response to OpenAI format
+    Proxy->>Cursor: OpenAI-formatted response
+```
+
+## Installation
 
 ### Prerequisites
 
-- Node.js (v14 or later)
-- pnpm
-- PostgreSQL
-- ngrok
+- Python 3.8 or higher
+- pip for installing dependencies
 
-### Quick Installation Steps
+### Setup
 
-1. Clone the repository
-2. Install dependencies with `pnpm install`
-3. Set up environment variables
-4. Set up the database with `pnpm prisma migrate dev`
-5. Build the project with `pnpm build`
-6. Set up ngrok
-7. Configure Cursor to use your ngrok URL as the API endpoint
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/multi-provider-ai-proxy.git
+   cd multi-provider-ai-proxy
+   ```
 
-For full details on each step, please see the [Installation Guide](https://www.cursorlens.com/docs/getting-started/installation).
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Create your configuration file:
+   ```bash
+   cp .env.template .env
+   ```
+
+4. Edit the `.env` file with your provider selection and API keys.
+
+## Configuration
+
+The proxy is highly configurable through environment variables or the `.env` file:
+
+- `AI_PROVIDER`: Select your AI provider (anthropic, google, groq, grok, ollama, custom)
+- `*_API_KEY`: API keys for different providers
+- Custom model mappings and provider URLs
+- Logging and performance settings
+- System prompt customization
 
 ## Usage
 
-1. Configure Cursor to use Cursor Lens as its API endpoint by overriding `OpenAI Base URL`.
-2. Choose a `gpt-` model. Use Cursor as normal for AI-assisted coding.
-3. Visit the Cursor Lens dashboard to view logs, statistics, and insights.
+### Running the proxy server
 
-![Cursor settings](public/cl-settings.png)
+Start the proxy server:
 
-## Stats page
+```bash
+python multi_ai_proxy.py
+```
 
-![Cursor Lens Stats](public/cl-stats.jpeg)
+The server will start on port 5000 by default (configurable through the `PORT` environment variable).
 
-## Prompt caching with Anthropic (v0.1.2):
+### Configuring Cursor
 
-1. Create a new config on `/configuration` page, choose `antropicCached` with Sonnet 3.5. Name it as you like.
-2. Mark it as default.
-3. Use Cursor with CursorLens as normal. The system and context messages in `CMD+L` and `CMD+i` chats will be cached from now on.
+1. Open Cursor IDE
+2. Go to Settings
+3. Under "AI" section, set:
+   - **Base URL**: `http://localhost:5000` (or your ngrok URL if exposed)
+   - **API Key**: Any value (the proxy doesn't check this)
+   - **Model**: Select a model like "gpt-4o" (it will be mapped to your provider's models)
 
-> Note that TTL for the cache is 5 minutes.
+```mermaid
+graph TD
+    A[Open Cursor Settings] --> B[Navigate to AI Section]
+    B --> C[Set Base URL: http://localhost:5000]
+    B --> D[Set API Key: any value]
+    B --> E[Select Model: gpt-4o]
+    C --> F[Save Settings]
+    D --> F
+    E --> F
+    F --> G[Test Connection with Cursor]
+```
 
-![Add a new config with Antropic Cached](public/anthropicCashedXConfig.png)
-![Example Cache creation response](public/ant-cache-create.png)
-![Example Cache read response](public/ant-cache-read.png)
+## Adding Custom Models
 
-# Releases
+You can define custom model mappings in multiple ways:
 
-## Nightly - 2024-08-24
+1. Using the `CUSTOM_MODEL_MAPPINGS` environment variable (JSON format):
+   ```
+   CUSTOM_MODEL_MAPPINGS={"groq": {"gpt-4o": "llama3-8b-8192", "gpt-3.5-turbo": "mixtral-8x7b-32768"}}
+   ```
 
-- Add new cost calculation
+2. Using individual model override variables:
+   ```
+   CUSTOM_MODEL_GPT4O=your-best-model
+   CUSTOM_MODEL_GPT35=your-fast-model
+   ```
 
-To run it, make sure to run:
+3. By directly editing the `MODEL_MAPPINGS` dictionary in the code.
 
-- `npx prisma seed db` and then
-- `pnpm run update-log-costs` to add cost info in metadata for all previous logs
+## Importance of System Prompts
 
-## [0.1.2-alpha] - 2024-08-22
+System prompts are critical for controlling how the AI model behaves in Cursor. They provide instructions that help the model understand:
 
-### ⚠️ ALPHA RELEASE
+1. **How to use Cursor's tools** - Critical for editing files and searching codebases
+2. **How to format responses** - Important for consistent code suggestions
+3. **Domain-specific instructions** - Can focus the model on specific programming languages or tasks
 
-### Added
+The default system prompt includes sections for:
 
-- Add Anthropic Cache support for context messages
-- Increase Token limit for Anthropic to 8192 tokens
-- Improved statistics page: Now you can select the data points you want to see
+- Tool calling behavior
+- Code change instructions
+- Search and file reading strategies
+- Recursion prevention
 
-### Improved and fixed
+You can customize these by setting the `CUSTOM_AGENT_INSTRUCTIONS` variable in your `.env` file.
 
-- Log details are now collapsible
-- Full response is captured in the logs
+## Cursor Integration Architecture
 
-## [0.1.1-alpha] - 2024-08-18
+Cursor interacts with AI models through a specific pattern:
 
-### ⚠️ ALPHA RELEASE
+```mermaid
+graph TD
+    A[Cursor IDE] -->|"1. User types or requests help"| B[Cursor Chat Interface]
+    B -->|"2. Formats request with system prompt"| C[AI Model via Proxy]
+    C -->|"3. Returns response (text/commands)"| B
+    B -->|"4. Applies changes or shows response"| A
+    
+    subgraph "Cursor Tools"
+    D1[File Editor]
+    D2[File Search]
+    D3[Terminal]
+    D4[Codebase Navigation]
+    end
+    
+    B -.->|"Uses tools based on AI responses"| D1
+    B -.->|"Uses tools based on AI responses"| D2
+    B -.->|"Uses tools based on AI responses"| D3
+    B -.->|"Uses tools based on AI responses"| D4
+```
 
-### Added
+## Troubleshooting
 
-- Added support for Mistral AI, Cohere, Groq, and Ollama
+If you encounter issues:
 
-## [0.1.0-alpha] - 2024-08-17
+1. Check the proxy logs for errors
+2. Verify your API keys are correct in the `.env` file
+3. Ensure you've selected a supported provider
+4. Check network connectivity to the provider's API endpoints
 
-This is the initial alpha release of CursorLens. As an alpha version, it may contain bugs and is not yet feature-complete. Use with caution in non-production environments.
-
-### Added
-
-- Initial project setup with Next.js
-- Basic proxy functionality between Cursor and AI providers (OpenAI, Anthropic)
-- Simple dashboard for viewing AI interaction logs
-- Token usage tracking for OpenAI and Anthropic models
-- Basic cost estimation based on token usage
-- Support for PostgreSQL database with Prisma ORM
-- Environment variable configuration for API keys and database connection
-- Basic error handling and logging
-
-### Known Issues
-
-- Limited error handling for edge cases
-- Incomplete test coverage
-- Basic UI with limited customization options
-- Potential performance issues with large volumes of requests
-- Cost calculation for cached messages in Anthropic are not correct
-
-## Contributing
-
-We welcome contributions to Cursor Lens! Please see our [Contributing Guide](CONTRIBUTING.md) for more details on how to get started.
+Common issues:
+- Invalid API keys
+- Rate limiting from providers
+- Incorrect model mappings
+- Network connectivity problems
 
 ## License
 
-Cursor Lens is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
+## Contributing
 
-If you encounter any issues or have questions, please file an issue on the GitHub repository or contact the maintainers directly.
-
-For more detailed information, please visit our [documentation](https://www.cursorlens.com/docs/project/introduction).
-
----
-
-Happy coding with Cursor Lens!
+Contributions are welcome! Please feel free to submit a Pull Request. 
